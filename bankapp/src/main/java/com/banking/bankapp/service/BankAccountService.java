@@ -25,7 +25,19 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
-    public void deleteBankAccount(Long id){
-        bankAccountRepository.deleteById(id);
-    }
-}
+    public void deleteBankAccount(Long id){bankAccountRepository.deleteById(id);}
+
+    public BankAccount updateAccount(long id, BankAccount updatedAccount) {
+        BankAccount existingAccount = bankAccountRepository.findById(id).orElse(null);
+
+        if (existingAccount == null) {
+            System.out.println("Account doesn't exist");
+            return null;
+        }
+
+        existingAccount.setAccountHolderName(updatedAccount.getAccountHolderName());
+        existingAccount.setBalance(updatedAccount.getBalance());
+        return bankAccountRepository.save(existingAccount);
+
+
+    }}
