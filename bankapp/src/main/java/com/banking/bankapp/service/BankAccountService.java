@@ -1,5 +1,7 @@
 package com.banking.bankapp.service;
 
+import com.banking.bankapp.exception.AccountNotFoundException;
+import com.banking.bankapp.exception.InvalidAmountException;
 import com.banking.bankapp.model.BankAccount;
 import com.banking.bankapp.repository.BankAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +20,13 @@ public class BankAccountService {
     }
 
     public BankAccount findBankAccountByID(Long id){
-        return bankAccountRepository.findById(id).orElse(null);
+        return bankAccountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount){
+        if(bankAccount.getBalance()<=0){
+            throw new InvalidAmountException("Balance cannot be less than or equal to ZERO");
+        }
         return bankAccountRepository.save(bankAccount);
     }
 
@@ -30,14 +35,40 @@ public class BankAccountService {
     public BankAccount updateAccount(long id, BankAccount updatedAccount) {
         BankAccount existingAccount = bankAccountRepository.findById(id).orElse(null);
 
-        if (existingAccount == null) {
-            System.out.println("Account doesn't exist");
-            return null;
-        }
-
         existingAccount.setAccountHolderName(updatedAccount.getAccountHolderName());
         existingAccount.setBalance(updatedAccount.getBalance());
         return bankAccountRepository.save(existingAccount);
 
 
-    }}
+    }
+
+    public BankAccount deposit(Long id,Double amount){
+
+        if(amount<=0){
+            throw new InvalidAmountException("Amount cannot be zero or Less");
+        }
+
+        BankAccount account = findBankAccountByID(id);
+        double amountPresent = account.getBalance()+amount;
+        account.setBalance(amountPresent);
+        return bankAccountRepository.save(account);
+
+    }
+
+    public BankAccount withDraw(Long id,Double amount){
+        if(amount<=0){
+            throw new InvalidAmountException("Amount cannot be zero or Less");
+        }
+        BankAccount account = findBankAccountByID(id);
+        if(account.getBalance()<amount){
+            throw new InvalidAmountException("Amount cannot be greater than balance");
+        }
+        Double existingBalance = account.getBalance();
+        existingBalance = existingBalance-amount;
+        account.setBalance(existingBalance);
+
+       return  bankAccountRepository.save(account);
+
+    }
+
+}
