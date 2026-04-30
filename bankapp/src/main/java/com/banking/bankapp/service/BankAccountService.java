@@ -3,10 +3,13 @@ package com.banking.bankapp.service;
 import com.banking.bankapp.exception.AccountNotFoundException;
 import com.banking.bankapp.exception.InvalidAmountException;
 import com.banking.bankapp.model.BankAccount;
+import com.banking.bankapp.model.Transaction;
 import com.banking.bankapp.repository.BankAccountRepository;
+import com.banking.bankapp.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -14,6 +17,8 @@ public class BankAccountService {
 
     @Autowired
     private BankAccountRepository bankAccountRepository;
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     public List<BankAccount> getAllBankAccounts(){
         return bankAccountRepository.findAll();
@@ -51,8 +56,14 @@ public class BankAccountService {
         BankAccount account = findBankAccountByID(id);
         double amountPresent = account.getBalance()+amount;
         account.setBalance(amountPresent);
-        return bankAccountRepository.save(account);
-
+        bankAccountRepository.save(account);
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setTransactionType("Deposit");
+        transaction.setBankAccount(account);
+        transaction.setTimestamp(LocalDateTime.now());
+        transactionRepository.save(transaction);
+        return account;
     }
 
     public BankAccount withDraw(Long id,Double amount){
@@ -66,8 +77,13 @@ public class BankAccountService {
         Double existingBalance = account.getBalance();
         existingBalance = existingBalance-amount;
         account.setBalance(existingBalance);
-
-       return  bankAccountRepository.save(account);
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setTransactionType("Withdraw");
+        transaction.setBankAccount(account);
+        transaction.setTimestamp(LocalDateTime.now());
+        transactionRepository.save(transaction);
+        return account;
 
     }
 
