@@ -87,4 +87,9 @@ public class BankAccountService {
 
     }
 
+    public List<Transaction> getTransactionsByAccountId(Long id) {
+        BankAccount account = findBankAccountByID(id);
+        return transactionRepository.findByBankAccount(account);
+    }
+
 }

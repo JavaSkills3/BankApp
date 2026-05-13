@@ -1,6 +1,7 @@
 package com.banking.bankapp.controller;
 
 import com.banking.bankapp.model.BankAccount;
+import com.banking.bankapp.model.Transaction;
 import com.banking.bankapp.service.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,8 @@ public class BankAccountController {
         return bankAccountService.getAllBankAccounts();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getAccountById(@PathVariable Long id){
+    @GetMapping("/search")
+    public ResponseEntity<?> getAccountById(@RequestParam Long id){
         BankAccount account =  bankAccountService.findBankAccountByID(id);
          return ResponseEntity.status(200).body(account);
     }
@@ -33,8 +34,8 @@ public class BankAccountController {
         return ResponseEntity.status(404).body("Something went wrong");
 
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBankAccount(@PathVariable Long id){
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteBankAccount(@RequestParam Long id){
         bankAccountService.findBankAccountByID(id);
         bankAccountService.deleteBankAccount(id);
 
@@ -48,23 +49,31 @@ public class BankAccountController {
         return "Test is working";
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateAccount(@PathVariable long id,@RequestBody BankAccount account){
+    @PutMapping("/update")
+    public ResponseEntity<?> updateAccount(@RequestParam long id,@RequestBody BankAccount account){
         bankAccountService.findBankAccountByID(id);
         bankAccountService.updateAccount(id,account);
         return ResponseEntity.status(200).body("Account with Id "+id+" is updated");
 
     }
-    @PostMapping("/{id}/withdraw")
-    public ResponseEntity<?> withDrawAmount(@PathVariable long id,@RequestBody Double amount){
+    @PostMapping("/withdraw")
+    public ResponseEntity<?> withDrawAmount(@RequestParam long id,@RequestBody Double amount){
           BankAccount account = bankAccountService.withDraw(id,amount);
           return ResponseEntity.status(200).body(account);
     }
 
-    @PostMapping("/{id}/deposit")
-    public ResponseEntity<?> deposit(@PathVariable long id,@RequestBody Double amount){
+    @PostMapping("/deposit")
+    public ResponseEntity<?> deposit(@RequestParam long id,@RequestBody Double amount){
         BankAccount account = bankAccountService.deposit(id,amount);
         return ResponseEntity.status(200).body(account);
     }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<?> getTransactions(@RequestParam Long id) {
+        List<Transaction> transactions = bankAccountService.getTransactionsByAccountId(id);
+        return ResponseEntity.status(200).body(transactions);
+    }
+
+
 
 }
