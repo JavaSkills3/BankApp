@@ -21,7 +21,7 @@ public class BankAccountController {
         return bankAccountService.getAllBankAccounts();
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/id")
     public ResponseEntity<?> getAccountById(@RequestParam Long id){
         BankAccount account =  bankAccountService.findBankAccountByID(id);
          return ResponseEntity.status(200).body(account);
@@ -82,6 +82,9 @@ public class BankAccountController {
         return ResponseEntity.status(200).body("transfer successful from accountId: "+request.getFromId()+" to AccountId: "+ request.getToId());
     }
 
-
+    @GetMapping("/search/name")
+    public ResponseEntity<?> findAccountByName(@RequestParam String name){
+        return ResponseEntity.status(200).body(bankAccountService.findAccountByName(name));
+    }
 
 }
