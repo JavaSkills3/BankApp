@@ -92,4 +92,34 @@ public class BankAccountService {
         return transactionRepository.findByBankAccount(account);
     }
 
+    public void transferAmount(Long fromAccountId, Long toAccountId, double amount){
+        BankAccount fromAccount = findBankAccountByID(fromAccountId);
+        BankAccount toAccount = findBankAccountByID(toAccountId);
+        if(fromAccount.getBalance() < amount){
+            throw new InvalidAmountException("Amount cannot be less than balance");
+        }
+
+        double presentBalance = fromAccount.getBalance() - amount;
+        fromAccount.setBalance(presentBalance);
+        bankAccountRepository.save(fromAccount);
+
+        Transaction fromTransaction = new Transaction();
+        fromTransaction .setAmount(amount);
+        fromTransaction .setTransactionType("Transfer TO");
+        fromTransaction .setBankAccount(fromAccount);
+        fromTransaction .setTimestamp(LocalDateTime.now());
+        transactionRepository.save(fromTransaction);
+
+        toAccount.setBalance(toAccount.getBalance() + amount);
+        bankAccountRepository.save(toAccount);
+
+        Transaction toTransaction= new Transaction();
+        toTransaction.setAmount(amount);
+        toTransaction.setTransactionType("Transfer FROM account ID: "+fromAccountId);
+        toTransaction.setBankAccount(toAccount);
+        toTransaction.setTimestamp(LocalDateTime.now());
+        transactionRepository.save(toTransaction);
+
+    }
+
 }

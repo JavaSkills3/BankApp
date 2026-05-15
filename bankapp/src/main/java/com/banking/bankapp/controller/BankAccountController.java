@@ -1,5 +1,6 @@
 package com.banking.bankapp.controller;
 
+import com.banking.bankapp.dto.TransferRequest;
 import com.banking.bankapp.model.BankAccount;
 import com.banking.bankapp.model.Transaction;
 import com.banking.bankapp.service.BankAccountService;
@@ -72,6 +73,13 @@ public class BankAccountController {
     public ResponseEntity<?> getTransactions(@RequestParam Long id) {
         List<Transaction> transactions = bankAccountService.getTransactionsByAccountId(id);
         return ResponseEntity.status(200).body(transactions);
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<?> transferAmountBetweenAccounts(@RequestBody TransferRequest request){
+
+        bankAccountService.transferAmount(request.getToId(),request.getFromId(),request.getAmount());
+        return ResponseEntity.status(200).body("transfer successful from accountId: "+request.getFromId()+" to AccountId: "+ request.getToId());
     }
 
 
